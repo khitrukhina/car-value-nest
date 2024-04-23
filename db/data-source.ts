@@ -1,4 +1,5 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
+import * as process from 'node:process';
 
 let dbOptions = {
     type: 'sqlite',
@@ -24,6 +25,17 @@ switch (process.env.NODE_ENV) {
         });
         break;
     case 'production':
+        Object.assign(dbOptions, {
+            type: 'postgres',
+            // will be set by heroku
+            url: process.env.DATABASE_URL,
+            // run migrations on launch to prod
+            migrationsRun: true,
+            entities: ['**/*.entity.js'],
+            ssl: {
+                rejectUnauthorized: false,
+            },
+        });
         break;
     default:
         throw new Error('Unknown environment');
